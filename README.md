@@ -55,7 +55,7 @@ Sans souris, par exemple sur un C64 d'origine avec une Kung Fu Flash, un joystic
 |---|---|
 | Commodore 64 Ultimate, firmware 1.1.0, à 1 MHz et à 64 MHz | Testé : édition, fichiers, impression sur une vraie MPS-803 |
 | VICE 3.10 (EasyFlash, 1541, MPS-803 émulés) | Testé, sert de banc d'essai |
-| C64 d'origine avec Kung Fu Flash 2 | La cartouche démarre et fonctionne. Le joystick, ajouté en version 2.0, reste à confirmer sur cette machine |
+| C64 d'origine avec Kung Fu Flash 2, joysticks | Testé : la cartouche démarre, le joystick pilote le pointeur (version 2.0) |
 
 ## Compiler
 
@@ -117,7 +117,7 @@ No mouse? A joystick in port 2 (or port 1) moves the pointer: one pixel per fram
 
 ## Tested on
 
-A Commodore 64 Ultimate (firmware 1.1.0) at 1 MHz and 64 MHz with a real MPS-803, and VICE 3.10. On an original C64 with a Kung Fu Flash 2, the cartridge starts and works; joystick control (new in 2.0) is still to be confirmed there.
+A Commodore 64 Ultimate (firmware 1.1.0) at 1 MHz and 64 MHz with a real MPS-803, and VICE 3.10. Also tested on an original C64 with a Kung Fu Flash 2 and joysticks (version 2.0).
 
 ## Building
 
