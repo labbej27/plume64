@@ -1,0 +1,8 @@
+Plume
+Copyright (c) 2026 LABBEJ27, MIT License (see LICENSE).
+
+Third-party components:
+
+- fonts/unscii-8.hex: unscii by viznut, public domain (http://viznut.fi/unscii/).
+- The cc65 runtime library linked into the program is distributed under the
+  zlib license (https://github.com/cc65/cc65).
