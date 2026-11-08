@@ -12,11 +12,11 @@ src/font.s: fonts/unscii-8.hex tools/mkfont.py
 
 build/plume-fr.prg: $(SRC) src/strings.h src/charmap.h
 	@mkdir -p build/fr
-	cl65 -t c64 -O -Or -Cl -o $@ -m build/plume-fr.map --obj-path build/fr -Wl -D,__HIMEM__=0xC000 -Wl -D,__STACKSIZE__=0x400 $(SRC)
+	cl65 -t c64 -O -Or -Cl -o $@ -m build/plume-fr.map --obj-path build/fr -Wl -D,__HIMEM__=0xC000 -Wl -D,__STACKSIZE__=0x200 $(SRC)
 
 build/plume-en.prg: $(SRC) src/strings.h src/charmap.h
 	@mkdir -p build/en
-	cl65 -t c64 -O -Or -Cl -DLANG_EN -o $@ -m build/plume-en.map --obj-path build/en -Wl -D,__HIMEM__=0xC000 -Wl -D,__STACKSIZE__=0x400 $(SRC)
+	cl65 -t c64 -O -Or -Cl -DLANG_EN -o $@ -m build/plume-en.map --obj-path build/en -Wl -D,__HIMEM__=0xC000 -Wl -D,__STACKSIZE__=0x200 $(SRC)
 
 build/plume-%.crt: build/plume-%.prg crt.s crt.cfg tools/mkcrt.py
 	ca65 -D PRG_PAGES=$(PAGES) -o build/crt-$*.o crt.s

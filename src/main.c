@@ -1,5 +1,6 @@
 /* Plume : traitement de texte graphique pour Commodore 64.
-   Souris 1351 (port 1), police proportionnelle, impression MPS-803.
+   Souris 1351 (port 1) ou joystick (port 1 ou 2), police proportionnelle,
+   impression MPS-803.
    (c) 2026 LABBEJ27. */
 #include <cbm.h>
 #include <c64.h>
@@ -509,9 +510,14 @@ static void panel(unsigned char row, unsigned char rows, unsigned x, unsigned w)
 static struct mouse_info mi;
 static unsigned mouse_x;
 static unsigned char mouse_y, clicked, extend, held, last_buttons;
+/* Joystick : le pointeur avance d'un pixel par image, puis accelere. */
+unsigned char joy_read(void);
+extern unsigned char joy_p1;
+static unsigned char joy_speed, joy_tick, joy_p1_time;
 
 static void poll_mouse(void)
 {
+    unsigned char j, s;
     clicked = 0;
     extend = 0;
     if (MAILBOX[0] == 2) {
@@ -534,13 +540,33 @@ static void poll_mouse(void)
     mouse_info(&mi);
     mouse_x = mi.pos.x;
     mouse_y = (unsigned char)mi.pos.y;
-    held = (mi.buttons & MOUSE_BTN_LEFT) != 0;
-    if (held && !(last_buttons & MOUSE_BTN_LEFT)) clicked = 1;
-    last_buttons = mi.buttons;
+    j = joy_read();
+    if (joy_p1) joy_p1_time = PEEK(0xA2);
+    if (!(j & 0x0F)) joy_speed = 0;
+    else if (PEEK(0xA2) != joy_tick) {
+        joy_tick = PEEK(0xA2);
+        if (joy_speed < 48) ++joy_speed;
+        s = 1 + (joy_speed >> 4);         /* 1 a 4 pixels par image */
+        if (j & 4) mouse_x = mouse_x > s ? mouse_x - s : 0;
+        if (j & 8) { mouse_x += s; if (mouse_x > 319) mouse_x = 319; }
+        if (j & 1) mouse_y = mouse_y > s ? mouse_y - s : 0;
+        if (j & 2) { mouse_y += s; if (mouse_y > 199) mouse_y = 199; }
+        mouse_move(mouse_x, mouse_y);
+    }
+    held = (j & 0x10) || (mi.buttons & MOUSE_BTN_LEFT);
+    if (held && !last_buttons) clicked = 1;
+    last_buttons = held;
 }
 
+/* Un joystick branche au port 1 se lit sur les memes fils que le clavier :
+   le KERNAL y voit des touches fantomes (DEL, RETURN...). On les jette tant
+   que ce joystick bouge, et un instant apres. */
 static unsigned char read_key(void)
 {
+    if ((unsigned char)(PEEK(0xA2) - joy_p1_time) < 6) {
+        POKE(198, 0);
+        return 0;
+    }
     return cbm_k_getin();
 }
 

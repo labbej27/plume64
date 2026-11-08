@@ -518,3 +518,42 @@ _bm_move:
         sta $01
         plp
         rts
+
+; unsigned char joy_read(void) : directions et tir des joysticks des ports 1
+; et 2 (bits 0 haut, 1 bas, 2 gauche, 3 droite, 4 tir, a 1 si actif). Les
+; colonnes du clavier sont desactivees pendant la lecture, pour qu'une touche
+; enfoncee ne passe pas pour le joystick du port 1. _joy_p1 garde le port 1
+; seul : il partage ses fils avec le clavier.
+        .export _joy_read, _joy_p1
+        .bss
+_joy_p1: .res 1
+        .code
+.proc _joy_read
+        php
+        sei
+        lda #$FF
+        sta $DC00
+.ifdef JOYTEST                  ; essais dans VICE : joystick simule en $02B0/$02B1
+        lda $02B1               ; (actif a 1)
+.else
+        lda $DC01               ; port 1
+        eor #$FF
+.endif
+        and #$1F
+        sta _joy_p1
+.ifdef JOYTEST
+        lda $02B0
+.else
+        lda $DC00               ; port 2
+.endif
+        ldx #$7F                ; valeur laissee par le KERNAL
+        stx $DC00
+        plp
+.ifndef JOYTEST
+        eor #$FF
+.endif
+        and #$1F
+        ora _joy_p1
+        ldx #0
+        rts
+.endproc
