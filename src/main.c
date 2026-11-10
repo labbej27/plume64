@@ -975,14 +975,16 @@ static void print_graphics(void)
     pr_byte(15);
 }
 
-static const char accent_base[] = "aaaceeeeiioouuuAACEEEEIIOUUU";
+/* Mode texte de l'imprimante : lettre de base des codes 128 à 167
+   (œ Œ -> O ; « » ° € -> espace). */
+static const char accent_base[] = "aaaceeeeiioouuuAACEEEEIIOUUU      aoaAOA";
 
 static unsigned char to_printer(unsigned char c)
 {
     if (c >= 128) {
         c -= 128;
+        if (c == 28 || c == 29) return 'O';
         if (c < sizeof accent_base - 1) c = (unsigned char)accent_base[c];
-        else if (c == 28 || c == 29) return 'O';
         else return ' ';
     }
     if (c >= 'a' && c <= 'z') return c - 0x20;
@@ -1381,6 +1383,21 @@ static const unsigned char cbm_accent[] = { 132,  133,  134,  128,  129,  131,  
 static unsigned char translate(unsigned char k)
 {
     unsigned char i;
+#ifdef KBD_DK
+    /* Clavier danois : : ; @ donnent æ ø å, Shift les majuscules ;
+       Shift + . et Shift + , donnent : et ; ; C= + @ donne @. */
+    switch (k) {
+    case 0x3A: return 162;
+    case 0x3B: return 163;
+    case 0x40: return 164;
+    case 0x5B: return 165;
+    case 0x5D: return 166;
+    case 0xBA: return 167;
+    case 0x3E: return ':';
+    case 0x3C: return ';';
+    case 0xA4: return '@';
+    }
+#endif
     if (k >= 0x41 && k <= 0x5A) return k + 0x20;
     if (k >= 0xC1 && k <= 0xDA) return k - 0x80;
     if (k >= 0x20 && k <= 0x40) return k;

@@ -13,7 +13,7 @@
 - **Écran graphique** façon GEOS : police proportionnelle, texte affiché tel qu'il sera imprimé.
 - **Souris 1351** sur le port 1 (une souris USB sur le C64 Ultimate) **ou joystick** sur le port 1 ou 2, menus déroulants, boîtes de dialogue.
 - **Gras, italique, souligné**, à la frappe ou sur une sélection.
-- **Accents français** à l'écran, dans le texte et sur papier.
+- **Accents français**, et æ ø å danois, à l'écran, dans le texte et sur papier.
 - **Sélection à la souris, couper, copier, coller, rechercher.**
 - **Documents jusqu'à 20 000 caractères**, enregistrés sur le lecteur 8.
 - **Impression sur Commodore MPS-803 / MPS-801** (périphérique 4), marges A4 de 3 cm :
@@ -45,6 +45,19 @@
 | `F8` | Rechercher le suivant |
 | `RUN/STOP` | Annuler une sélection ou une boîte de dialogue |
 
+### Édition danoise
+
+`dist/plume-dk.crt` a les menus en anglais et un clavier danois :
+
+| Touches | Effet |
+|---|---|
+| `:` / `;` / `@` | æ / ø / å |
+| `Shift` + `:` / `;` / `@` | Æ / Ø / Å |
+| `Shift` + `.` / `,` | `:` / `;` |
+| `C=` + `@` | `@` |
+
+Dans cette édition, `<`, `>`, `[` et `]` ne sont plus disponibles. Toutes les éditions affichent et impriment æ ø å Æ Ø Å ; en mode Texte, l'imprimante les remplace par a, o, a.
+
 ### Joystick
 
 Sans souris, par exemple sur un C64 d'origine avec une Kung Fu Flash, un joystick sur le port 2 (ou le port 1) déplace le pointeur. Il avance d'un pixel par image pour viser une lettre, puis accélère si l'on garde le manche poussé. Le bouton de tir sert de clic. Gardez-le enfoncé en bougeant le manche pour sélectionner du texte. Le port 2 est conseillé : le port 1 partage ses fils avec le clavier, donc Plume ignore le clavier quand le joystick du port 1 bouge.
@@ -56,6 +69,11 @@ Sans souris, par exemple sur un C64 d'origine avec une Kung Fu Flash, un joystic
 | Commodore 64 Ultimate, firmware 1.1.0, à 1 MHz et à 64 MHz | Testé : édition, fichiers, impression sur une vraie MPS-803 |
 | VICE 3.10 (EasyFlash, 1541, MPS-803 émulés) | Testé, sert de banc d'essai |
 | C64 d'origine avec Kung Fu Flash 2, joysticks | Testé : la cartouche démarre, le joystick pilote le pointeur (version 2.0) |
+| Édition danoise (2.1) | Testée dans VICE : clavier danois, æ ø å Æ Ø Å à l'écran ; pas encore sur un vrai C64 danois |
+
+## Plume en ligne : écrire sur l'ordinateur, imprimer sur le C64
+
+La page [labbej.eu/plume](https://labbej.eu/plume) est un éditeur de texte en ligne pour Plume. On écrit avec gras, italique et souligné (ou on colle un texte depuis Word, ou on ouvre un fichier `.txt`, Markdown ou `.docx`), puis on télécharge une disquette `.d64` que Plume ouvre, prête à imprimer sur la MPS-803. Accents français et lettres danoises æ ø å sont conservés. Tout se passe dans le navigateur : le texte n'est envoyé nulle part.
 
 ## Compiler
 
@@ -96,7 +114,7 @@ Les cartouches sont dans `build/plume-fr.crt` et `build/plume-en.crt`.
 - **Graphical screen** in the spirit of GEOS: proportional font, what you see is what you print.
 - **1351 mouse** on port 1 (a USB mouse on the C64 Ultimate) **or joystick** on port 1 or 2, pull-down menus, dialog boxes.
 - **Bold, italic, underline**, while typing or on a selection.
-- **Accented characters** on screen, in the text and on paper.
+- **Accented characters** (French, plus Danish æ ø å) on screen, in the text and on paper.
 - **Mouse selection, cut, copy, paste, find.**
 - **Documents up to 20,000 characters**, saved on drive 8.
 - **Printing on a Commodore MPS-803 / MPS-801** (device 4), with 3 cm margins on A4:
@@ -111,13 +129,19 @@ Les cartouches sont dans `build/plume-fr.crt` et `build/plume-en.crt`.
 2. Put a disk or a `.d64` in drive 8 for your documents. [`dist/plume.d64`](dist/plume.d64) is an empty one.
 3. Start the cartridge.
 
+**Danish edition** (`dist/plume-dk.crt`, English menus): `:` `;` `@` type æ ø å, and with `Shift` Æ Ø Å; `Shift` + `.` and `Shift` + `,` give `:` and `;`; `C=` + `@` gives `@`. `<`, `>`, `[` and `]` are not available in this edition. Every edition displays and prints æ ø å Æ Ø Å (the printer's Text mode prints them as a, o, a).
+
 Keys: `F1` save, `F3`/`F5`/`F7` bold/italic/underline, `F2`/`F4`/`F6` copy/paste/cut, `F8` find next, `RUN/STOP` cancels. Accented letters use `C=` plus a letter (see the table above): `C=`+`E` gives é, `C=`+`A` gives à, `C=`+`C` gives ç.
 
 No mouse? A joystick in port 2 (or port 1) moves the pointer: one pixel per frame for precise aiming, then faster while you hold it. Fire clicks; hold fire while moving to select text. Port 2 is better: port 1 shares its wires with the keyboard, so Plume ignores the keyboard while a port 1 joystick is moving.
 
 ## Tested on
 
-A Commodore 64 Ultimate (firmware 1.1.0) at 1 MHz and 64 MHz with a real MPS-803, and VICE 3.10. Also tested on an original C64 with a Kung Fu Flash 2 and joysticks (version 2.0).
+A Commodore 64 Ultimate (firmware 1.1.0) at 1 MHz and 64 MHz with a real MPS-803, and VICE 3.10. Also tested on an original C64 with a Kung Fu Flash 2 and joysticks (version 2.0). The Danish edition (2.1) has been tested in VICE so far; feedback from Danish users is welcome.
+
+## Plume online: write on your computer, print on the C64
+
+[labbej.eu/plume](https://labbej.eu/plume) is an online text editor for Plume: write with bold, italic and underline (or paste from Word, or open a `.txt`, Markdown or `.docx` file), then download a `.d64` disk that Plume opens, ready to print on the MPS-803. French accents and Danish æ ø å are kept. Everything happens in your browser: your text is not sent anywhere.
 
 ## Building
 

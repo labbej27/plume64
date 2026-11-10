@@ -6,7 +6,7 @@ Codes internes : ASCII 32-126, puis les lettres accentuees de CHARSET a partir d
 """
 import sys
 
-ACCENTS = "àâäçéèêëîïôöùûüÀÂÇÉÈÊËÎÏÔÙÛÜœŒ«»°€"
+ACCENTS = "àâäçéèêëîïôöùûüÀÂÇÉÈÊËÎÏÔÙÛÜœŒ«»°€æøåÆØÅ"   # 128-167 (æøå : 2.1)
 SPACE_WIDTH = 4
 glyphs = {}
 for line in open(sys.argv[1]):
