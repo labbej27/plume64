@@ -85,7 +85,7 @@ Sans souris, par exemple sur un C64 d'origine avec une Kung Fu Flash, un joystic
 | VICE 3.10 (EasyFlash, 1541, MPS-803 émulés) | Testé, sert de banc d'essai |
 | C64 d'origine avec Kung Fu Flash 2, joysticks | Testé : la cartouche démarre, le joystick pilote le pointeur (version 2.0) |
 | Édition danoise (2.1) | Testée dans VICE : clavier danois, æ ø å Æ Ø Å à l'écran ; pas encore sur un vrai C64 danois |
-| Édition hongroise (2.2) | Testée dans VICE 3.7.1 et 3.10 : les 18 lettres á é í ó ö ő ú ü ű et leurs majuscules à l'écran et sur la MPS-803 émulée ; pas encore sur un vrai C64 hongrois |
+| Édition hongroise (2.2) | Testée dans VICE 3.7.1 et 3.10 : les 18 lettres á é í ó ö ő ú ü ű et leurs majuscules à l'écran et sur la MPS-803 émulée ; pas encore essayée sur un vrai C64 par des utilisateurs hongrois |
 
 ## Plume en ligne : écrire sur l'ordinateur, imprimer sur le C64
 
