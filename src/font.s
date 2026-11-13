@@ -1,7 +1,7 @@
 ; Genere par tools/mkfont.py depuis unscii-8 (domaine public).
 	.export _font_width, _font_bits, FONT_FIRST, FONT_COUNT
 FONT_FIRST = 32
-FONT_COUNT = 136
+FONT_COUNT = 149
 	.rodata
 _font_width:
 	.byte 4,3,7,8,7,8,8,4,5,5,9,7,4,7,3,9
@@ -12,7 +12,8 @@ _font_width:
 	.byte 7,7,7,7,7,7,7,8,8,7,7,7,3,7,8,4
 	.byte 7,7,7,6,7,7,7,7,6,7,7,7,7,7,7,7
 	.byte 7,7,8,8,8,8,7,7,8,8,8,8,8,8,9,9
-	.byte 7,8,9,8,8,9,7,7
+	.byte 7,8,9,8,8,9,7,7,7,7,6,7,7,8,7,8
+	.byte 8,8,8,8,8
 _font_bits:			; 8 octets par caractere, aligne a gauche
 	.byte $00,$00,$00,$00,$00,$00,$00,$00	;  
 	.byte $C0,$C0,$C0,$C0,$C0,$00,$C0,$00	; !
@@ -121,14 +122,14 @@ _font_bits:			; 8 octets par caractere, aligne a gauche
 	.byte $60,$90,$E0,$60,$60,$60,$78,$00	; î
 	.byte $CC,$00,$70,$30,$30,$30,$78,$00	; ï
 	.byte $30,$48,$78,$CC,$CC,$CC,$78,$00	; ô
-	.byte $CC,$00,$78,$CC,$CC,$CC,$78,$00	; ö
+	.byte $D8,$00,$78,$CC,$CC,$CC,$78,$00	; ö
 	.byte $60,$30,$CC,$CC,$CC,$CC,$7C,$00	; ù
 	.byte $30,$48,$CC,$CC,$CC,$CC,$7C,$00	; û
-	.byte $CC,$00,$CC,$CC,$CC,$CC,$7C,$00	; ü
+	.byte $D8,$00,$CC,$CC,$CC,$CC,$7C,$00	; ü
 	.byte $E0,$00,$78,$CC,$FC,$CC,$CC,$00	; À
 	.byte $30,$CC,$00,$78,$CC,$FC,$CC,$00	; Â
 	.byte $78,$CC,$C0,$C0,$C0,$CC,$78,$30	; Ç
-	.byte $0E,$00,$FE,$C0,$F8,$C0,$FE,$00	; É
+	.byte $0C,$18,$FE,$C0,$F8,$C0,$FE,$00	; É
 	.byte $70,$00,$FE,$C0,$F8,$C0,$FE,$00	; È
 	.byte $18,$66,$00,$FE,$F0,$C0,$FE,$00	; Ê
 	.byte $66,$00,$FE,$C0,$F8,$C0,$FE,$00	; Ë
@@ -137,7 +138,7 @@ _font_bits:			; 8 octets par caractere, aligne a gauche
 	.byte $18,$66,$00,$7C,$C6,$C6,$7C,$00	; Ô
 	.byte $70,$00,$C6,$C6,$C6,$C6,$7C,$00	; Ù
 	.byte $18,$66,$00,$C6,$C6,$C6,$7C,$00	; Û
-	.byte $66,$00,$C6,$C6,$C6,$C6,$7C,$00	; Ü
+	.byte $6C,$00,$C6,$C6,$C6,$C6,$7C,$00	; Ü
 	.byte $00,$00,$6C,$DA,$DE,$D8,$76,$00	; œ
 	.byte $7E,$CC,$CC,$CE,$CC,$CC,$7E,$00	; Œ
 	.byte $00,$33,$66,$CC,$66,$33,$00,$00	; «
@@ -150,3 +151,16 @@ _font_bits:			; 8 octets par caractere, aligne a gauche
 	.byte $3F,$6C,$CC,$FE,$CC,$CC,$CF,$00	; Æ
 	.byte $7C,$CC,$DC,$FC,$EC,$CC,$F8,$00	; Ø
 	.byte $30,$30,$00,$78,$CC,$FC,$CC,$00	; Å
+	.byte $18,$30,$78,$0C,$7C,$CC,$7C,$00	; á
+	.byte $18,$30,$78,$CC,$FC,$CC,$CC,$00	; Á
+	.byte $30,$60,$E0,$60,$60,$60,$78,$00	; í
+	.byte $18,$30,$FC,$30,$30,$30,$FC,$00	; Í
+	.byte $18,$30,$78,$CC,$CC,$CC,$78,$00	; ó
+	.byte $0C,$18,$7C,$C6,$C6,$C6,$7C,$00	; Ó
+	.byte $18,$30,$CC,$CC,$CC,$CC,$7C,$00	; ú
+	.byte $0C,$18,$C6,$C6,$C6,$C6,$7C,$00	; Ú
+	.byte $66,$CC,$00,$3C,$66,$66,$3C,$00	; ő
+	.byte $66,$CC,$00,$7C,$C6,$C6,$7C,$00	; Ő
+	.byte $66,$CC,$00,$66,$66,$66,$3E,$00	; ű
+	.byte $66,$CC,$00,$C6,$C6,$C6,$7C,$00	; Ű
+	.byte $6C,$00,$7C,$C6,$C6,$C6,$7C,$00	; Ö

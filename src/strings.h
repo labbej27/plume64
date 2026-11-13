@@ -53,9 +53,11 @@
 #define S_CLIPFULL   "Selection too long to copy."
 #define S_BADFILE    "Not a Plume document."
 #ifdef KBD_DK
-#define S_ABOUT1     "Plume 2.1 DK, word processor"
+#define S_ABOUT1     "Plume 2.2 DK, word processor"
+#elif defined KBD_HU
+#define S_ABOUT1     "Plume 2.2 HU, word processor"
 #else
-#define S_ABOUT1     "Plume 2.1, word processor"
+#define S_ABOUT1     "Plume 2.2, word processor"
 #endif
 #define S_ABOUT2     "for the Commodore 64."
 #define S_ABOUT3     "2026 by LABBEJ27."
@@ -102,7 +104,7 @@
 #define S_FULL       "Document plein."
 #define S_CLIPFULL   "S" C_EAIGU "lection trop longue pour la copie."
 #define S_BADFILE    "Ce n'est pas un document Plume."
-#define S_ABOUT1     "Plume 2.1, traitement de texte"
+#define S_ABOUT1     "Plume 2.2, traitement de texte"
 #define S_ABOUT2     "pour Commodore 64."
 #define S_ABOUT3     "2026 par LABBEJ27."
 #define S_ABOUT4     "Police : unscii (domaine public)."

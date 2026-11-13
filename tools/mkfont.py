@@ -6,7 +6,8 @@ Codes internes : ASCII 32-126, puis les lettres accentuees de CHARSET a partir d
 """
 import sys
 
-ACCENTS = "àâäçéèêëîïôöùûüÀÂÇÉÈÊËÎÏÔÙÛÜœŒ«»°€æøåÆØÅ"   # 128-167 (æøå : 2.1)
+ACCENTS = "àâäçéèêëîïôöùûüÀÂÇÉÈÊËÎÏÔÙÛÜœŒ«»°€æøåÆØÅáÁíÍóÓúÚőŐűŰÖ"
+# 128-167 : francais et danois (æøå : 2.1) ; 168-179 : hongrois ; 180 : Ö.
 SPACE_WIDTH = 4
 glyphs = {}
 for line in open(sys.argv[1]):
@@ -20,10 +21,20 @@ DRAWN = {
     "aigu": ["....##..", "...##..."],
     "grave": ["..##....", "...##..."],
     "circ": ["...##...", "..#..#.."],
+    "umlaut": [".##.##..", "........"],     # deux points, un pixel d'ecart
 }
 REDRAW = {"é": ("e", "aigu"), "è": ("e", "grave"), "ê": ("e", "circ"), "à": ("a", "grave"),
           "â": ("a", "circ"), "ù": ("u", "grave"), "û": ("u", "circ"), "ô": ("o", "circ"),
-          "î": ("i", "circ")}
+          "î": ("i", "circ"),
+          "á": ("a", "aigu"), "í": ("i", "aigu"), "ó": ("o", "aigu"), "ú": ("u", "aigu"),
+          # trema : unscii ecarte les points (colonnes 1-2 et 5-6), on les
+          # rapproche d'une colonne au-dessus de la lettre.
+          "ü": ("u", "umlaut"), "ö": ("o", "umlaut"),
+          # majuscules : unscii les comprime deja sur les lignes 2 a 7 avec
+          # l'accent en ligne 0, on repart donc du glyphe accentue lui-meme.
+          "Á": ("Á", "aigu"), "É": ("É", "aigu"), "Í": ("Í", "aigu"),
+          "Ó": ("Ó", "aigu"), "Ú": ("Ú", "aigu"),
+          "Ü": ("Ü", "umlaut"), "Ö": ("Ö", "umlaut")}
 for ch, (base, accent) in REDRAW.items():
     rows = bytearray(glyphs[ord(base)])
     if base == "i":

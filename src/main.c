@@ -82,7 +82,9 @@ extern const unsigned char font_width[];
 #define COL_MARGIN 0x0C
 
 unsigned char text[MAXDOC];               /* exporte pour next_line_asm */
-static unsigned char outbuf[PRINT_CARDS_ * 8 + 2];   /* une passe d'impression ; tampon libre sinon */
+/* Tampon d'impression : une ligne du mode Texte, ou la sortie d'une passe du
+   mode Graphique. Libre autrement. */
+static unsigned char outbuf[PRINT_CARDS_ * 8 + 3];
 unsigned doclen;
 static unsigned nlines;
 static unsigned relayout_last;
@@ -558,15 +560,34 @@ static void poll_mouse(void)
     last_buttons = held;
 }
 
+
 /* Un joystick branche au port 1 se lit sur les memes fils que le clavier :
    le KERNAL y voit des touches fantomes (DEL, RETURN...). On les jette tant
    que ce joystick bouge, et un instant apres. */
+#ifdef KBD_HU
+static unsigned char hu_key(void);
+static unsigned char hu_last;
+#endif
+
 static unsigned char read_key(void)
 {
+#ifdef KBD_HU
+    unsigned char k;
+#endif
     if ((unsigned char)(PEEK(0xA2) - joy_p1_time) < 6) {
         POKE(198, 0);
         return 0;
     }
+#ifdef KBD_HU
+    /* Tant que C= est enfoncee, on jette ce que le KERNAL a pu mettre dans
+       son tampon : sa couche C= ne fait pas Shift, et notre lecture de la
+       matrice pendant sa scrutation peut lui donner des touches fantomes. */
+    k = hu_key();
+    if (k || hu_last != 0xFF) {         /* C= tenue, ou touche lue */
+        POKE(198, 0);
+        return k;
+    }
+#endif
     return cbm_k_getin();
 }
 
@@ -893,7 +914,10 @@ static void open_doc(void)
 #define TEAR_GRAPH  12
 #define TEAR_TEXT   8
 
-static unsigned char strip[PRINT_CARDS * 8];
+/* La ligne en cours de dessin (strip) n'est plus lue quand une passe part :
+   elle partage donc la place de outbuf. rows, lui, vit en meme temps que
+   outbuf (emit_pass), il garde la sienne. */
+#define strip outbuf
 static unsigned char rows[14][PRINT_CARDS];
 static unsigned char pending;
 static unsigned char print_ok;
@@ -975,9 +999,9 @@ static void print_graphics(void)
     pr_byte(15);
 }
 
-/* Mode texte de l'imprimante : lettre de base des codes 128 à 167
+/* Mode texte de l'imprimante : lettre de base des codes 128 à 180
    (œ Œ -> O ; « » ° € -> espace). */
-static const char accent_base[] = "aaaceeeeiioouuuAACEEEEIIOUUU      aoaAOA";
+static const char accent_base[] = "aaaceeeeiioouuuAACEEEEIIOUUU      aoaAOAaAiIoOuUoOuUO";
 
 static unsigned char to_printer(unsigned char c)
 {
@@ -1377,12 +1401,84 @@ static void move_left(void)
     if (cursor) cursor = canonical(cursor - 1);
 }
 
+/* Accents sous C=. Edition hongroise : les positions de AltGr dans hu_prog
+   (q=ő w=ű e=é y=ü u=ú i=í o=ó p=ö a=á), sinon le clavier français. */
+#ifdef KBD_HU
+/* Le KERNAL ne sait pas faire Shift + C= : avec les deux touches, sa table
+   ne rend rien du tout. Plume lit donc la matrice lui-meme tant que C= est
+   enfoncee. Deux octets par touche : ce qu'il faut ecrire dans $DC00 pour ne garder
+   que sa rangee, puis son masque de colonne. L'ordre fixe le numero rendu par
+   hu_key, d'ou la table des lettres juste apres. */
+static const unsigned char hu_keys[] = {
+    0xFD, 0x40,     /* e */
+    0xFD, 0x02,     /* w */
+    0xEF, 0x02,     /* i */
+    0xEF, 0x40,     /* o */
+    0xDF, 0x02,     /* p */
+    0x7F, 0x40,     /* q */
+    0xF7, 0x40,     /* u */
+    0xF7, 0x02,     /* y */
+    0xFD, 0x04,     /* a */
+    0xDF, 0x08      /* - (donne _) */
+};
+#define HU_KEYS (sizeof hu_keys / 2)
+
+/* Numeros de hu_key (0xE0 + numero, puis + HU_KEYS si Shift), puis les lettres
+   de la police. Aucun de ces codes ne tombe sur ceux que handle_key lit avant
+   translate, ni sur les lettres de la police, dont 0x85-0x8C sont aussi les
+   touches de fonction (0x8B = couper, 0x85 = enregistrer...). */
+static const unsigned char hu_font[] = {
+    132, 178, 170, 172, 139, 176, 174, 142, 168, '_',   /* e u i o o o u u a _ */
+    146, 179, 171, 173, 180, 177, 175, 155, 169, '_'    /* E U I O O O U U A _ */
+};
+
+static unsigned char hu_last = 0xFF;    /* offset deja vu ; 0xFF = C= relachee */
+
+/* Touche de la couche C= enfoncee, sous forme 0xE0 + son numero (+ HU_KEYS si Shift),
+   ou 0 si C= est relachee ou si la touche a deja ete comptee. $028D dirait
+   l'etat de C=, mais le KERNAL le remet a zero pendant sa propre scrutation :
+   on lit la matrice (rangee 7, bit 5). */
+static unsigned char hu_key(void)
+{
+    unsigned char i, c, d, shift;
+    asm("sei");
+    POKE(0xDC00, 0x7F);                 /* rangee 7 : C=, et q */
+    if (PEEK(0xDC01) & 0x20) {          /* C= relachee */
+        asm("cli");
+        hu_last = 0xFF;
+        return 0;
+    }
+    POKE(0xDC00, 0xFD);                 /* rangee 1 : Shift gauche, bit 7 */
+    c = ~PEEK(0xDC01);
+    POKE(0xDC00, 0xBF);                 /* rangee 6 : Shift droit, bit 4 */
+    d = ~PEEK(0xDC01);
+    shift = ((c & 0x80) | (d & 0x10)) ? HU_KEYS : 0;
+    for (i = 0; i < 2 * HU_KEYS; i += 2) {
+        POKE(0xDC00, hu_keys[i]);
+        if (!(~PEEK(0xDC01) & hu_keys[i + 1])) continue;
+        POKE(0xDC00, 0x7F);
+        asm("cli");
+        if (i == hu_last) return 0;
+        hu_last = i;
+        return 0xE0 + (i >> 1) + shift;
+    }
+    hu_last = 0xFE;                     /* C= tenue, aucune touche de la couche */
+    asm("cli");
+    return 0;
+}
+#else
 static const unsigned char cbm_keys[]   = { 0xB1, 0xB2, 0xA3, 0xB0, 0xAB, 0xBC, 0xB8, 0xB7, 0xB9, 0xA2, 0xA1, 0xB6, 0xAF };
 static const unsigned char cbm_accent[] = { 132,  133,  134,  128,  129,  131,  140,  141,  138,  136,  137,  135,  156 };
-
+#endif
 static unsigned char translate(unsigned char k)
 {
+#ifndef KBD_HU
     unsigned char i;
+#endif
+#ifdef KBD_HU
+    /* Lettres rendues par hu_key (voir hu_font). */
+    if (k >= 0xE0 && k < 0xE0 + 2 * HU_KEYS) return hu_font[k - 0xE0];
+#endif
 #ifdef KBD_DK
     /* Clavier danois : : ; @ donnent æ ø å, Shift les majuscules ;
        Shift + . et Shift + , donnent : et ; ; C= + @ donne @. */
@@ -1403,9 +1499,12 @@ static unsigned char translate(unsigned char k)
     if (k >= 0x20 && k <= 0x40) return k;
     if (k == 0x5B || k == 0x5D) return k;
     if (k == 0x5C) return 161;
+    if (k == 0xDC) return '_';              /* C= + - : tiret bas */
     if (k == 0x5E) return '^';
     if (k == 0xA0) return ' ';
+#ifndef KBD_HU
     for (i = 0; i < sizeof cbm_keys; ++i) if (k == cbm_keys[i]) return cbm_accent[i];
+#endif
     return 0;
 }
 
@@ -1501,7 +1600,10 @@ static void sprites_init(void)
 void main(void)
 {
     POKE(0x0291, 0x80);
-    findtext[0] = 0;                            /* tampon cassette : pas remis a zero */
+    findtext[0] = 0;
+#ifdef KBD_HU
+    hu_last = 0xFF;                     /* aucune touche de la couche vue */
+#endif                            /* tampon cassette : pas remis a zero */
     gfx_init();
     VIC.bordercolor = COLOR_GRAY1;
     sprites_init();
