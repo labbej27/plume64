@@ -438,14 +438,22 @@ static const char *const menu_items[NMENUS][7] = {
     { S_CUT, S_COPY, S_PASTE, S_SELALL, S_FIND, S_FINDNEXT, 0 },
     { S_PLAIN, S_BOLD, S_ITALIC, S_UNDERLINE, 0 },
     { S_PGRAPH, S_PTEXT, S_PWIDE, 0 },
+#ifdef KBD_HU
+    { S_ABOUT, S_PTRHIDE, 0 },
+#else
     { S_ABOUT, 0 },
+#endif
 };
 static const char *const menu_keys[NMENUS][7] = {
     { "", "", "F1", "", 0 },
     { "F6", "F2", "F4", "", "", "F8", 0 },
     { "", "F3", "F5", "F7", 0 },
     { "", "", "", 0 },
+#ifdef KBD_HU
+    { "", "", 0 },
+#else
     { "", 0 },
+#endif
 };
 static unsigned menu_x[NMENUS + 1];
 
@@ -517,6 +525,39 @@ unsigned char joy_read(void);
 extern unsigned char joy_p1;
 static unsigned char joy_speed, joy_tick, joy_p1_time;
 
+#ifdef KBD_HU
+/* Edition hongroise, idee et code de mkckOner : en option (menu ?), la fleche
+   s'efface apres 4 s sans bouger, car elle cache le texte. Elle revient au
+   premier mouvement ou au premier clic. On touche au bit 0 de $D015, comme
+   blink_cursor le fait pour le bit 1 du curseur texte : le pilote de souris
+   continue de suivre la position sans rien perdre. Desactive par defaut. */
+static unsigned char ptr_hide, ptr_idle_max, ptr_idle, ptr_tick, ptr_on = 1;
+static unsigned ptr_last_x;
+static unsigned char ptr_last_y;
+
+static void pointer_show(void)
+{
+    ptr_idle = 0;
+    if (!ptr_on) { VIC.spr_ena |= 0x01; ptr_on = 1; }
+}
+
+static void pointer_update(void)
+{
+    unsigned char t = PEEK(0xA2);
+    if (!ptr_idle_max) ptr_idle_max = PEEK(0x02A6) ? 200 : 240;  /* 4 s */
+    if (mouse_x != ptr_last_x || mouse_y != ptr_last_y || clicked || held) {
+        ptr_last_x = mouse_x;
+        ptr_last_y = mouse_y;
+        pointer_show();
+    } else if (ptr_hide && ptr_on && t != ptr_tick) {
+        if (++ptr_idle >= ptr_idle_max) { VIC.spr_ena &= 0xFE; ptr_on = 0; }
+    }
+    ptr_tick = t;
+}
+#else
+#define pointer_update()
+#endif
+
 static void poll_mouse(void)
 {
     unsigned char j, s;
@@ -537,6 +578,7 @@ static void poll_mouse(void)
         MAILBOX[0] = 0;
         clicked = 1;
         held = 0;
+        pointer_update();
         return;
     }
     mouse_info(&mi);
@@ -558,6 +600,7 @@ static void poll_mouse(void)
     held = (j & 0x10) || (mi.buttons & MOUSE_BTN_LEFT);
     if (held && !last_buttons) clicked = 1;
     last_buttons = held;
+    pointer_update();
 }
 
 
@@ -1298,6 +1341,9 @@ static unsigned char run_menu(unsigned char m)
         if (m == 2 && ((i && (style & (1 << (i - 1)))) || (!i && !style)) && !has_selection()) {
             put_text(x0 + 4, row, "*", 0);
         }
+#ifdef KBD_HU
+        if (m == 4 && i == 1 && ptr_hide) put_text(x0 + 4, row, "*", 0);
+#endif
     }
     for (;;) {
         poll_mouse();
@@ -1347,6 +1393,9 @@ static void do_menu(unsigned char m, unsigned char item)
         print_doc(item);
         break;
     case 4:
+#ifdef KBD_HU
+        if (item == 1) { ptr_hide = !ptr_hide; pointer_show(); break; }
+#endif
         message(S_ABOUT, S_ABOUT1, S_ABOUT3, 0);
         break;
     }

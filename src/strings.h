@@ -55,7 +55,8 @@
 #ifdef KBD_DK
 #define S_ABOUT1     "Plume 2.2 DK, word processor"
 #elif defined KBD_HU
-#define S_ABOUT1     "Plume 2.2 HU, word processor"
+#define S_ABOUT1     "Plume 2.3 HU, word processor"
+#define S_PTRHIDE    "Hide idle pointer"    /* idee de mkckOner */
 #else
 #define S_ABOUT1     "Plume 2.2, word processor"
 #endif

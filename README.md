@@ -73,6 +73,8 @@ L'édition hongroise est l'œuvre de **mkckOner**, qui a dessiné les lettres et
 
 Sous `C=`, Plume lit la matrice du clavier lui-même : le KERNAL ne sait pas faire `Shift` + `C=`. Toutes les éditions affichent et impriment ces lettres ; en mode Texte, l'imprimante écrit la lettre sans accent (ő donne o).
 
+Depuis la version 2.3 HU, le menu `?` propose **Hide idle pointer** : la flèche s'efface après 4 secondes sans bouger, pour ne pas cacher le texte, et revient au premier mouvement ou au premier clic. L'option est désactivée au démarrage ; un `*` la signale quand elle est active. Idée et code de **mkckOner**.
+
 ### Joystick
 
 Sans souris, par exemple sur un C64 d'origine avec une Kung Fu Flash, un joystick sur le port 2 (ou le port 1) déplace le pointeur. Il avance d'un pixel par image pour viser une lettre, puis accélère si l'on garde le manche poussé. Le bouton de tir sert de clic. Gardez-le enfoncé en bougeant le manche pour sélectionner du texte. Le port 2 est conseillé : le port 1 partage ses fils avec le clavier, donc Plume ignore le clavier quand le joystick du port 1 bouge.
@@ -86,6 +88,7 @@ Sans souris, par exemple sur un C64 d'origine avec une Kung Fu Flash, un joystic
 | C64 d'origine avec Kung Fu Flash 2, joysticks | Testé : la cartouche démarre, le joystick pilote le pointeur (version 2.0) |
 | Édition danoise (2.1) | Testée dans VICE : clavier danois, æ ø å Æ Ø Å à l'écran ; pas encore sur un vrai C64 danois |
 | Édition hongroise (2.2) | Testée dans VICE 3.7.1 et 3.10 : les 18 lettres á é í ó ö ő ú ü ű et leurs majuscules à l'écran et sur la MPS-803 émulée ; pas encore essayée sur un vrai C64 par des utilisateurs hongrois |
+| Édition hongroise (2.3 HU) | Pointeur masqué à l'arrêt testé dans VICE 3.10 : option désactivée par défaut, flèche effacée après 4 s, rétablie au clic |
 
 ## Plume en ligne : écrire sur l'ordinateur, imprimer sur le C64
 
@@ -148,6 +151,8 @@ Les cartouches sont dans `build/plume-fr.crt`, `build/plume-en.crt`, `build/plum
 **Danish edition** (`dist/plume-dk.crt`, English menus): `:` `;` `@` type æ ø å, and with `Shift` Æ Ø Å; `Shift` + `.` and `Shift` + `,` give `:` and `;`; `C=` + `@` gives `@`. `<`, `>`, `[` and `]` are not available in this edition. Every edition displays and prints æ ø å Æ Ø Å (the printer's Text mode prints them as a, o, a).
 
 **Hungarian edition** (`dist/plume-hu.crt`, English menus): the `C=` layer follows the `AltGr` positions of the Hungarian Programmers layout (`hu_prog`) on a QWERTY base: `C=`+`E`/`Y`/`U`/`I` give é/ü/ú/í, `C=`+`O`/`P`/`Q`/`W` give ó/ö/ő/ű, `C=`+`A` gives á. Hold `Shift` as well for É Ü Ú Í Ó Ö Ő Ű Á. The Hungarian edition was created by **mkckOner**, who drew the letters and wrote the keyboard code.
+
+Since version 2.3 HU, the `?` menu offers **Hide idle pointer**: the arrow disappears after 4 seconds without movement, so it no longer hides the text, and comes back on the first move or click. The option is off at startup; a `*` marks it when it is on. Idea and code by **mkckOner**.
 
 Keys: `F1` save, `F3`/`F5`/`F7` bold/italic/underline, `F2`/`F4`/`F6` copy/paste/cut, `F8` find next, `RUN/STOP` cancels. Accented letters use `C=` plus a letter (see the table above): `C=`+`E` gives é, `C=`+`A` gives à, `C=`+`C` gives ç. In every edition, `C=`+`-` types an underscore `_`.
 
