@@ -89,6 +89,13 @@ Sans souris, par exemple sur un C64 d'origine avec une Kung Fu Flash, un joystic
 | Édition danoise (2.1) | Testée dans VICE : clavier danois, æ ø å Æ Ø Å à l'écran ; pas encore sur un vrai C64 danois |
 | Édition hongroise (2.2) | Testée dans VICE 3.7.1 et 3.10 : les 18 lettres á é í ó ö ő ú ü ű et leurs majuscules à l'écran et sur la MPS-803 émulée ; pas encore essayée sur un vrai C64 par des utilisateurs hongrois |
 | Édition hongroise (2.3 HU) | Pointeur masqué à l'arrêt testé dans VICE 3.10 : option désactivée par défaut, flèche effacée après 4 s, rétablie au clic |
+| Toutes les éditions (2.4) | Correctifs de Norbert testés dans VICE 3.10 : plus de touche perdue, impression identique à la 2.3 |
+
+## Édition REU de Norbert, pour le C64 Ultimate
+
+Norbert ([nmakk](https://github.com/nmakk)) a écrit à partir de Plume une **édition REU** pour les C64 équipés d'une extension mémoire, comme le C64 Ultimate : documents de plusieurs mégaoctets, annulation, import et export RTF, sauvegarde rapide, barre de défilement, clavier hongrois complet, couleurs du clavier du C64 Ultimate et bien plus. Elle se trouve dans son dépôt : [github.com/nmakk/plume64](https://github.com/nmakk/plume64).
+
+Ce dépôt-ci garde l'édition d'origine, qui tourne aussi sur un C64 sans extension. Plume 2.4 y reprend ses correctifs : les touches perdues (un compteur de 8 bits qui revenait à zéro jetait une touche de temps en temps) et le scintillement de la ligne tapée et de la ligne d'état. Merci Norbert !
 
 ## Plume en ligne : écrire sur l'ordinateur, imprimer sur le C64
 
@@ -161,6 +168,12 @@ No mouse? A joystick in port 2 (or port 1) moves the pointer: one pixel per fram
 ## Tested on
 
 A Commodore 64 Ultimate (firmware 1.1.0) at 1 MHz and 64 MHz with a real MPS-803, and VICE 3.10. Also tested on an original C64 with a Kung Fu Flash 2 and joysticks (version 2.0). The Danish edition (2.1) has been tested in VICE so far; feedback from Danish users is welcome. The Hungarian edition (2.2) has also only been tested in VICE so far (screen and emulated MPS-803); feedback from Hungarian users is welcome.
+
+## Norbert's REU edition, for the C64 Ultimate
+
+Norbert ([nmakk](https://github.com/nmakk)) built a **REU edition** of Plume for C64s with a RAM expansion, such as the C64 Ultimate: multi-megabyte documents, undo, RTF import and export, quick save, a scrollbar, a full Hungarian keyboard layout, C64 Ultimate keyboard colours and much more. It lives in Norbert's repository: [github.com/nmakk/plume64](https://github.com/nmakk/plume64).
+
+This repository keeps the original edition, which also runs on a C64 without any expansion. Plume 2.4 includes Norbert's fixes for lost keystrokes (an 8-bit timer that wrapped around dropped a key now and then) and for the flicker of the typed line and the status line. Thank you, Norbert!
 
 ## Plume online: write on your computer, print on the C64
 

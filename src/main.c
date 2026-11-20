@@ -99,6 +99,13 @@ static unsigned char key;
 unsigned wrap_width = TEXT_W;
 static unsigned char next_style;             /* style a la fin de next_line() */
 
+/* Tampon d'une rangee ($0400, l'ecran texte que Plume n'utilise pas) : la
+   ligne tapee et la ligne d'etat y sont dessinees puis copiees d'un coup a
+   l'ecran, pour qu'elles ne clignotent plus. draw_off != 0 : put_text dessine
+   dans le tampon. Correctif de Norbert (nmakk). */
+#define LINEBUF   0x0400u
+static unsigned draw_off;
+
 static void io_hide(void) { asm("sei"); POKE(0x01, 0x34); }
 static void io_show(void) { POKE(0x01, 0x36); asm("cli"); }
 
@@ -107,7 +114,7 @@ static void io_show(void) { POKE(0x01, 0x36); asm("cli"); }
 
 static unsigned put_text(unsigned x, unsigned char row, const char *s, unsigned char st)
 {
-    gbase = ROWBASE(row);
+    gbase = draw_off ? draw_off : ROWBASE(row);
     gstyle = st;
     while (*s) {
         gch = (unsigned char)*s++;
@@ -148,7 +155,7 @@ static void vline(unsigned char row, unsigned x, unsigned char mask)
     for (y = 0; y < 8; ++y) bm_or(ROWBASE(row) + x + y, mask);
 }
 
-static void xor_span(unsigned char row, unsigned x0, unsigned x1)
+static void xor_span_at(unsigned base, unsigned x0, unsigned x1)
 {
     unsigned card;
     unsigned char a, b, mask;
@@ -156,8 +163,13 @@ static void xor_span(unsigned char row, unsigned x0, unsigned x1)
         a = card < x0 ? (unsigned char)(x0 - card) : 0;
         b = card + 8 > x1 ? (unsigned char)(x1 - card) : 8;
         mask = (unsigned char)((0xFF >> a) & (0xFF << (8 - b)));
-        bm_xormask(ROWBASE(row) + card, mask);
+        bm_xormask(base + card, mask);
     }
+}
+
+static void xor_span(unsigned char row, unsigned x0, unsigned x1)
+{
+    xor_span_at(ROWBASE(row), x0, x1);
 }
 
 static void petscii_to_text(char *dst, const char *src)
@@ -302,11 +314,11 @@ static void draw_line(unsigned i)
     unsigned p, end, x = TEXT_X0, lo = sel_lo(), hi = sel_hi(), sx = 0, ex = 0;
     if (i < top || i >= top + VISIBLE) return;
     row = (unsigned char)(TEXT_ROW0 + i - top);
-    clear_cells(row, 0, 320);                   /* marges comprises : efface les ombres des menus */
-    if (i >= nlines) return;
+    bm_fill(LINEBUF, 320, 0);                   /* marges comprises : efface les ombres des menus */
+    if (i >= nlines) goto show;
     end = lstart[i + 1];
     st = lstyle[i];
-    gbase = ROWBASE(row);
+    gbase = LINEBUF;
     for (p = lstart[i]; p < end; ++p) {
         if (p == lo) sx = x;
         if (p == hi) ex = x;
@@ -322,8 +334,10 @@ static void draw_line(unsigned i)
     if (lo < hi && lo < end && hi > lstart[i]) {
         if (lo < lstart[i]) sx = TEXT_X0;
         if (hi >= end || (p < hi && ex == 0)) ex = x;
-        if (ex > sx) xor_span(row, sx, ex);
+        if (ex > sx) xor_span_at(LINEBUF, sx, ex);
     }
+show:
+    bm_move(ROWBASE(row), LINEBUF, 320);
 }
 
 static void draw_lines(unsigned from, unsigned to)
@@ -416,7 +430,8 @@ static void draw_status(void)
 {
     char *buf = statusbuf, *b;
     if (dirty != shown_dirty || style != shown_style) draw_title();
-    clear_cells(FOOT_ROW, 0, 320);
+    draw_off = LINEBUF;
+    bm_fill(LINEBUF, 320, 0);
     b = buf;
     strcpy(b, S_LINE " ");
     b = utoa_simple(b + strlen(b), line_of(cursor) + 1);
@@ -426,6 +441,8 @@ static void draw_status(void)
     strcpy(buf, S_FREE " ");
     utoa_simple(buf + strlen(buf), MAXDOC - doclen);
     put_text(314 - text_width(buf, 0), FOOT_ROW, buf, 0);
+    draw_off = 0;
+    bm_move(ROWBASE(FOOT_ROW), LINEBUF, 320);
 }
 
 /* ------------------------------------------------------------------ */
@@ -523,7 +540,7 @@ static unsigned char mouse_y, clicked, extend, held, last_buttons;
 /* Joystick : le pointeur avance d'un pixel par image, puis accelere. */
 unsigned char joy_read(void);
 extern unsigned char joy_p1;
-static unsigned char joy_speed, joy_tick, joy_p1_time;
+static unsigned char joy_speed, joy_tick, joy_hold, hold_a2;
 
 #ifdef KBD_HU
 /* Edition hongroise, idee et code de mkckOner : en option (menu ?), la fleche
@@ -585,7 +602,12 @@ static void poll_mouse(void)
     mouse_x = mi.pos.x;
     mouse_y = (unsigned char)mi.pos.y;
     j = joy_read();
-    if (joy_p1) joy_p1_time = PEEK(0xA2);
+    /* Joystick sur le port 1 : on ignore le clavier pendant 6 images. Un
+       compte a rebours, et non une difference de compteurs 8 bits qui
+       revenait a zero toutes les 256 images et jetait alors des touches
+       (trouve et corrige par Norbert, nmakk). */
+    if (PEEK(0xA2) != hold_a2) { hold_a2 = PEEK(0xA2); if (joy_hold) --joy_hold; }
+    if (joy_p1) joy_hold = 6;
     if (!(j & 0x0F)) joy_speed = 0;
     else if (PEEK(0xA2) != joy_tick) {
         joy_tick = PEEK(0xA2);
@@ -617,7 +639,7 @@ static unsigned char read_key(void)
 #ifdef KBD_HU
     unsigned char k;
 #endif
-    if ((unsigned char)(PEEK(0xA2) - joy_p1_time) < 6) {
+    if (joy_hold) {
         POKE(198, 0);
         return 0;
     }
